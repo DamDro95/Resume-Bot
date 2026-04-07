@@ -32,6 +32,51 @@ body{
     margin:  0 calc(33vh/2);
 }
 
+@scope(header){
+    :scope{
+        display:flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--size-6) 0;
+    }
+
+    img{
+        width: 12rem;
+    }
+
+    menu{
+        list-style-type: none;
+        display: flex;
+        gap: var(--size-4);
+        align-items: center;
+        font-size: var(--size-4);
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    li{
+        text-decoration: none;
+        color: var(--secondary-text-color);
+    }
+
+    a{
+        text-decoration: none;
+        color: var(--dark-primary-color);
+    }
+
+    a:hover{
+        text-decoration: underline;
+        text-underline-offset: var(--size-5);
+        color: var(--accent-color);
+    }
+
+    a:active{
+        text-decoration: underline;
+        color: var(--accent-color);
+        text-underline-offset: var(--size-5);
+    }
+}
+
 h1, h2, h3, h4{
     font-family: "Martian Mono", monospace;
 }

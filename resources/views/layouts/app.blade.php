@@ -16,6 +16,8 @@
     </head>
     <body>
 
+        <x-header/>
+
         <livewire:auth.modal/>
 
         {{ $slot }}
