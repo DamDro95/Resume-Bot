@@ -1,8 +1,246 @@
-@import 'tailwindcss';
+:root {
+    --dark-primary-color: #54595F;
+    --default-primary-color: #7A7A7A;
+    --light-primary-color: #F5F5F5;
+    --text-primary-color: #212121;
+    --secondary-text-color: #757575;
+    --accent-color: #61CE70;
+    --divider-color: #BDBDBD;
 
-@source '../views';
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+    --size-base: 1rem;
+    --size-ratio: 1.25;
+    --size-6: calc(var(--size-5) / var(--size-ratio));
+    --size-5: calc(var(--size-base) / var(--size-ratio));
+    --size-4: calc(var(--size-base) * var(--size-ratio));
+    --size-3: calc(var(--size-4) * var(--size-ratio));
+    --size-2: calc(var(--size-3) * var(--size-ratio));
+    --size-1: calc(var(--size-2) * var(--size-ratio));
+}
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+*{
+    padding: 0;
+    margin: 0;
+    color: var(--text-primary-color);
+    font-family: Roboto, Sans-serif;
+}
+
+body{
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-1);
+    background-color: var(--light-primary-color);
+    margin:  0 calc(33vh/2);
+}
+
+h1, h2, h3, h4{
+    font-family: "Martian Mono", monospace;
+}
+
+h1 { font-size: var(--size-1); line-height: 1.1; padding: var(--size-6) 0; }
+h2 { font-size: var(--size-2); line-height: 1.2; padding: var(--size-5) 0; }
+h3 { font-size: var(--size-3); line-height: 1.3; padding: var(--size-4) 0; }
+h4 { font-size: var(--size-4); line-height: 1.4; padding: var(--size-3) 0; }
+
+h3{
+    color: var(--dark-primary-color);
+}
+
+h1, h2, h4{
+    color: var(--default-primary-color);
+}
+
+main{
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-2);
+}
+
+
+dialog{
+    flex-direction: column;
+    justify-self: center;
+    align-self: center;
+    gap: var(--size-2);
+    width:fit-content;
+    height: fit-content;
+    padding: var(--size-1);
+    border-radius: calc( var(--size-5) + var(--size-1) );
+    border: none;
+}
+
+dialog:open{
+    display: flex;
+}
+
+dialog input{
+    border: 2px solid var(--dark-primary-color);
+    border-radius: var(--size-5);
+}
+
+section{
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-3);
+    padding: var(--size-1);
+    border: 2px solid var(--dark-primary-color);
+    border-radius: var(--size-5);
+}
+
+form, section > section{
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-4);
+}
+
+label{
+    display: flex;
+    flex-direction: column;
+    gap: calc( var(--size-5));
+    font-size: var(--size-4);
+}
+
+.horizontal{
+    display: flex;
+    flex-direction: row;
+    gap: inherit;
+    align-items: center;
+    color: inherit;
+}
+
+input, textarea{
+    padding: var(--size-5);
+    border: none;
+    border-radius: var(--size-5);
+    font-size: var(--size-4);
+}
+
+input[type="file"]{
+    display: none;
+}
+
+i{
+    color: var(--accent-color);
+}
+
+button, label:has(input[type="file"]){
+    padding: var(--size-5);
+    width: fit-content;
+    background-color: var(--default-primary-color);
+    border-radius: var(--size-5);
+    font-size: 1rem;
+    box-shadow: 0 4px 8px 0 var(--dark-primary-color);
+    border: none;
+    color: #FFFFFF;
+    font-weight: 900;
+    transition: all 0.3s ease-in-out;
+}
+
+button:hover, label:has(input[type="file"]):hover{
+    background-color: var(--dark-primary-color);
+    cursor: pointer;
+    transform: scale(1.1);
+    box-shadow: none;
+}
+
+button[disabled], button.cta[disabled]{
+    background-color: var(--dark-primary-color);
+    cursor: wait;
+    box-shadow: none;
+}
+
+button[disabled]:hover{
+    transform: none;
+}
+
+button.cta{
+    background-color: var(--accent-color);
+}
+
+button#logout{
+    background-color: transparent;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    color: var(--secondary-text-color);
+    font-size: var(--size-4);
+    transition: none;
+}
+
+button#logout:hover{
+    transform: none;
+    text-decoration: underline;
+    color: var(--accent-color);
+    text-underline-offset: var(--size-5);
+}
+
+form button{
+    align-self: end;
+}
+
+pre{
+    background-color: var(--dark-primary-color);
+    color: var(--light-primary-color);
+    padding: var(--size-2);
+    border-radius: var(--size-5);
+
+    white-space: break-spaces;
+    height: 33vh;
+    overflow-y: scroll;
+}
+
+table{
+    border-spacing: 0 var(--size-4);
+
+}
+
+.document-result{
+    width: 100%;
+}
+
+div[role='alert']{
+    justify-content: space-between;
+    background-color: var(--light-primary-color);
+    border-radius: var(--size-5);
+    padding: var(--size-4);
+}
+
+div[role='alert'] p::before{
+    content: '⚠';
+    color: #FF8C00;
+    margin-right: var(--size-6);
+    font-weight: bold;
+    font-size: var(--size-4);
+}
+
+/* HTML: <div class="loader"></div> */
+.loader {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 8px solid var(--accent-color);
+  animation:
+    l20-1 0.8s infinite linear alternate,
+    l20-2 1.6s infinite linear;
+}
+
+@keyframes l20-1{
+   0%    {clip-path: polygon(50% 50%,0       0,  50%   0%,  50%    0%, 50%    0%, 50%    0%, 50%    0% )}
+   12.5% {clip-path: polygon(50% 50%,0       0,  50%   0%,  100%   0%, 100%   0%, 100%   0%, 100%   0% )}
+   25%   {clip-path: polygon(50% 50%,0       0,  50%   0%,  100%   0%, 100% 100%, 100% 100%, 100% 100% )}
+   50%   {clip-path: polygon(50% 50%,0       0,  50%   0%,  100%   0%, 100% 100%, 50%  100%, 0%   100% )}
+   62.5% {clip-path: polygon(50% 50%,100%    0, 100%   0%,  100%   0%, 100% 100%, 50%  100%, 0%   100% )}
+   75%   {clip-path: polygon(50% 50%,100% 100%, 100% 100%,  100% 100%, 100% 100%, 50%  100%, 0%   100% )}
+   100%  {clip-path: polygon(50% 50%,50%  100%,  50% 100%,   50% 100%,  50% 100%, 50%  100%, 0%   100% )}
+}
+
+@keyframes l20-2{
+  0%    {transform:scaleY(1)  rotate(0deg)}
+  49.99%{transform:scaleY(1)  rotate(135deg)}
+  50%   {transform:scaleY(-1) rotate(0deg)}
+  100%  {transform:scaleY(-1) rotate(-135deg)}
+}
+
+
+@keyframes float {
+    0%,100% { transform: translate(0%,4%); }
+    50%      { transform: translate(0%,-2%); }
 }
