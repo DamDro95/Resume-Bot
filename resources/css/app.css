@@ -57,6 +57,11 @@ body{
     li{
         text-decoration: none;
         color: var(--secondary-text-color);
+        transition-duration: 0.5s;
+    }
+
+    li:hover{
+        transform: scale(1.2);
     }
 
     a{
@@ -68,6 +73,7 @@ body{
         text-decoration: underline;
         text-underline-offset: var(--size-5);
         color: var(--accent-color);
+        cursor: pointer;
     }
 
     a:active{
@@ -127,7 +133,6 @@ section{
     flex-direction: column;
     gap: var(--size-3);
     padding: var(--size-1);
-    border: 2px solid var(--dark-primary-color);
     border-radius: var(--size-5);
 }
 

@@ -16,7 +16,7 @@
     </head>
     <body>
 
-        <x-header/>
+        <livewire:header/>
 
         <livewire:auth.modal/>
 

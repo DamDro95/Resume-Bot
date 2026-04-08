@@ -7,6 +7,7 @@
 
         <img src="/images/resume-bot-login.svg" />
 
+        @island
         @if($step === 'email')
             <form wire:submit="submitEmail">
 
@@ -28,6 +29,13 @@
                     Continue
                 </button>
 
+                <a href="{{ route('auth.redirect', 'google') }}" class="btn-oauth">
+                    Continue with Google
+                </a>
+                <a href="{{ route('auth.redirect', 'linkedin-openid') }}" class="btn-oauth">
+                    Continue with LinkedIn
+                </a>
+
             </form>
         @elseif($step === 'code')
             <form wire:submit="submitCode">
@@ -40,11 +48,15 @@
                     <input type="text" wire:model="code" required>
                 </label>
 
+                @error('code') <span class="error">{{ $message }}</span> @enderror
+
                 <button type="submit">
                     Verify
                 </button>
-
+                <button type="button" wire:click="resendCode">Resend code</button>
+                <button type="button" wire:click="$set('step', 'email')">Use a different email</button>
             </form>
         @endif
+        @endisland
     </section>
 </dialog>
