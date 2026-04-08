@@ -8,7 +8,7 @@
     --divider-color: #BDBDBD;
 
     --size-base: 1rem;
-    --size-ratio: 1.25;
+    --size-ratio: 1.125;
     --size-6: calc(var(--size-5) / var(--size-ratio));
     --size-5: calc(var(--size-base) / var(--size-ratio));
     --size-4: calc(var(--size-base) * var(--size-ratio));
@@ -29,7 +29,13 @@ body{
     flex-direction: column;
     gap: var(--size-1);
     background-color: var(--light-primary-color);
-    margin:  0 calc(33vh/2);
+    margin: 0 16px;
+}
+
+@media (min-width: 768px) {
+    body{
+        margin:  0 calc(33vh/2);
+    }
 }
 
 @scope(header){
@@ -81,6 +87,63 @@ body{
         color: var(--accent-color);
         text-underline-offset: var(--size-5);
     }
+
+    @media (min-width: 768px) {
+
+    }
+}
+
+@scope(dialog#auth-modal){
+    :scope{
+        padding: 0;
+    }
+
+    section{
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    img{
+        width: 8em;
+        justify-self: center;
+        position: relative;
+        transform: translate(-0%, -0%);
+        animation: float 5s ease-in-out infinite;
+    }
+
+    form{
+        align-self: center;
+    }
+
+    button{
+        width: 100% !important;
+    }
+
+    button#email:hover{
+        background-color: var(--accent-color);
+    }
+
+    button#linkedin{
+        background-color: #0072b1;
+    }
+
+    button#google{
+        background-color: #DB4437;
+    }
+
+    @media(min-width: 768px){
+        section{
+            grid-template-columns: 1fr 1fr;
+        }
+
+        img{
+            width: 25em;
+        }
+
+        form{
+            width: 33em;
+        }
+    }
 }
 
 h1, h2, h3, h4{
@@ -96,8 +159,12 @@ h3{
     color: var(--dark-primary-color);
 }
 
-h1, h2, h4{
+h1, h4{
     color: var(--default-primary-color);
+}
+
+h2{
+    color: var(--secondary-text-color);
 }
 
 main{
@@ -132,7 +199,6 @@ section{
     display: flex;
     flex-direction: column;
     gap: var(--size-3);
-    padding: var(--size-1);
     border-radius: var(--size-5);
 }
 

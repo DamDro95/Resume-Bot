@@ -79,7 +79,7 @@ new class extends Component
         $userId = Auth::id() ?? 'guest';
 
         try {
-            $baseUrl = config('services.n8n.check_documents_url');
+            $baseUrl = config('n8n.check_documents_url');
             $response = Http::timeout(30)->get("{$baseUrl}/{$userId}");
 
             if ($response->successful()) {
@@ -116,7 +116,7 @@ new class extends Component
         try {
             $response = Http::timeout(120)
                 ->asMultipart()
-                ->post(config('services.n8n.upload_resume_url'), [
+                ->post(config('n8n.upload_resume_url'), [
                     [
                         'name' => 'resume',
                         'contents' => fopen($this->resume->getRealPath(), 'r'),
@@ -158,7 +158,7 @@ new class extends Component
         try {
             $response = Http::timeout(120)
                 ->asMultipart()
-                ->post(config('services.n8n.upload_cover_letter_url'), [
+                ->post(config('n8n.upload_cover_letter_url'), [
                     [
                         'name' => 'coverLetter',
                         'contents' => fopen($this->coverLetter->getRealPath(), 'r'),
@@ -219,7 +219,7 @@ new class extends Component
             }
 
             $response = Http::timeout(300)
-                ->post(config('services.n8n.generate_url'), $payload);
+                ->post(config('n8n.generate_url'), $payload);
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -275,7 +275,7 @@ new class extends Component
             $userId = Auth::id() ?? 'guest';
 
             $response = Http::timeout(300)
-                ->post(config('services.n8n.generate_url'), [
+                ->post(config('n8n.generate_url'), [
                     'jobDescription' => $this->jobDescription,
                     'userId' => $userId,
                     'skills' => $skillDescriptions,

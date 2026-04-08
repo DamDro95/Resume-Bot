@@ -25,16 +25,17 @@
 
                 @error('email') <span class="error">{{ $message }}</span> @enderror
 
-                <button type="submit">
+                <button type="submit" id="email">
                     Continue
                 </button>
 
-                <a href="{{ route('auth.redirect', 'google') }}" class="btn-oauth">
-                    Continue with Google
-                </a>
-                <a href="{{ route('auth.redirect', 'linkedin-openid') }}" class="btn-oauth">
+                <button id="linkedin">
                     Continue with LinkedIn
-                </a>
+                </button>
+
+                <button id="google">
+                    Continue with Google
+                </button>
 
             </form>
         @elseif($step === 'code')
