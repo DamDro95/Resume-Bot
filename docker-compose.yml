@@ -9,6 +9,8 @@ services:
     volumes:
       - .:/var/www                          # Live code sync
       - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - resume_app
 

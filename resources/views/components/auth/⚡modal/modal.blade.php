@@ -23,7 +23,7 @@
                     Remember me
                 </label>
 
-                @error('email') <span class="error">{{ $message }}</span> @enderror
+                @error('email')>{{ $message }}</span> @enderror
 
                 <button type="submit" id="email">
                     Continue
@@ -49,7 +49,7 @@
                     <input type="text" wire:model="code" required>
                 </label>
 
-                @error('code') <span class="error">{{ $message }}</span> @enderror
+                @error('code') <span>{{ $message }}</span> @enderror
 
                 <button type="submit">
                     Verify
