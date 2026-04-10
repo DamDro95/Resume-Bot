@@ -1,0 +1,4 @@
+storage/app/private/livewire-tmp
+node_modules
+.git
+vendor

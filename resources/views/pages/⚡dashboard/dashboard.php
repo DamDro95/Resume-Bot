@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
+use Livewire\Attributes\On;
 
 new class extends Component
 {
@@ -56,10 +57,10 @@ new class extends Component
         'jobDescription' => 'required|string|min:10',
     ];
 
-    /* public function mount() */
-    /* { */
-    /*     $this->checkDocumentsExist(); */
-    /* } */
+    public function mount()
+    {
+        $this->checkDocumentsExist();
+    }
 
     /* public function render() */
     /* { */
@@ -74,6 +75,7 @@ new class extends Component
     /* } */
 
 
+    #[On('auth-success')]
     public function checkDocumentsExist()
     {
         $userId = Auth::id() ?? 'guest';
@@ -200,7 +202,7 @@ new class extends Component
             // Get all previous skill responses for this user
             $previousSkills = MissingSkill::whereHas('generatedDocument', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
-            })->where('addressed', true)->get();
+            })->where('user_response', '<>', '')->get();
 
             $skillsData = [];
             foreach ($previousSkills as $skill) {
@@ -219,7 +221,7 @@ new class extends Component
             }
 
             $response = Http::timeout(300)
-                ->post(config('n8n.generate_url'), $payload);
+                ->post(config('n8n.generate_resume_url'), $payload);
 
             if ($response->successful()) {
                 $data = $response->json();
@@ -242,7 +244,6 @@ new class extends Component
                     MissingSkill::create([
                         'generated_document_id' => $document->id,
                         'skill_name' => $skill,
-                        'addressed' => false,
                     ]);
                 }
 

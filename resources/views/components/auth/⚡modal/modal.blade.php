@@ -23,17 +23,20 @@
                     Remember me
                 </label>
 
-                @error('email')>{{ $message }}</span> @enderror
+                @error('email')
+                    <span>{{ $message }}</span>
+                @enderror
 
                 <button type="submit" id="email">
                     Continue
+                    <div class="loader" wire:loading></div>
                 </button>
 
-                <button id="linkedin">
+                <button id="linkedin" wire:loading.attr="disabled">
                     Continue with LinkedIn
                 </button>
 
-                <button id="google">
+                <button id="google" wire:loading.attr="disabled">
                     Continue with Google
                 </button>
 
@@ -49,13 +52,24 @@
                     <input type="text" wire:model="code" required>
                 </label>
 
-                @error('code') <span>{{ $message }}</span> @enderror
+                @error('code')
+                    <span>{{ $message }}</span>
+                @enderror
 
                 <button type="submit">
                     Verify
+                    <div class="loader" wire:loading wire:target="submitCode"></div>
                 </button>
-                <button type="button" wire:click="resendCode">Resend code</button>
-                <button type="button" wire:click="$set('step', 'email')">Use a different email</button>
+
+                <button type="button" wire:click="resendCode">
+                    Resend code
+                    <div class="loader" wire:loading wire:target="resendCode"></div>
+                </button>
+
+                <button type="button" wire:click="back">
+                    Use a different email
+                    <div class="loader" wire:loading wire:target="back"></div>
+                </button>
             </form>
         @endif
         @endisland

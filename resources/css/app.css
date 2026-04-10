@@ -127,7 +127,7 @@ main{
     }
 
     button#email:hover{
-        background-color: var(--accent-color);
+        background-color: var(--dark-primary-color);
     }
 
     button#linkedin{

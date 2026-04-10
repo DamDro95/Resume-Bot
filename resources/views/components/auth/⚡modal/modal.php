@@ -66,6 +66,7 @@ new class extends Component
 
         if (!$record || $record->isExpired() || !password_verify($this->code, $record->code)) {
             $this->addError('code', 'Invalid or expired code.');
+            $this->code = '';
             return;
         }
 
@@ -77,6 +78,11 @@ new class extends Component
         $this->reset();
         $this->dispatch('close')->self();
         $this->dispatch('auth-success');
+    }
+
+    public function back(){
+        $this->email = '';
+        $this->step = 'email';
     }
 
     public function resendCode(): void
