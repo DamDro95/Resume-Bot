@@ -7,9 +7,11 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use App\Enums\DocumentType;
 
 #[Fillable(['email', 'linkedin_id', 'google_id'])]
 #[Hidden(['remember_token'])]
@@ -40,5 +42,21 @@ class User extends Authenticatable
             ->take(2)
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    public function userDocuments(): HasMany
+    {
+        return $this->hasMany(UserDocument::class);
+    }
+
+    public function generations(): HasMany
+    {
+        return $this->hasMany(GeneratedDocument::class);
+    }
+
+    public function getDocument(DocumentType $type): ?UserDocument
+    {
+        return $this->userDocuments()->where('user_id', $this->id)
+            ->where('documentType', $type->value)->first();
     }
 }

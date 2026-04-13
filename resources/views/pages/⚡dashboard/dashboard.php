@@ -4,6 +4,9 @@ namespace Livewire\Component;
 
 use App\Models\GeneratedDocument;
 use App\Models\MissingSkill;
+use App\Enums\DocumentType;
+use App\Models\UserDocument;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -11,21 +14,24 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Validate;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Livewire\Attributes\Session;
 
 new class extends Component
 {
     use WithFileUploads;
     use WithPagination;
 
+    #[Validate('file|mimes:pdf,doc,docx|max:10240')]
     public $resume;
 
+    #[Validate('file|mimes:pdf,doc,docx|max:10240')]
     public $coverLetter;
 
+    #[Validate('required|string|min:10'), Session]
     public $jobDescription = '';
-
-    public $resumeUploaded = false;
-
-    public $coverLetterUploaded = false;
 
     public $resumeExists = false;
 
@@ -45,17 +51,9 @@ new class extends Component
 
     public $uploading = false;
 
-    public $resumeUploading = false;
-
     public $selectedHistory = null;
 
     public $selectedHistoryTitle = '';
-
-    protected $rules = [
-        'resume' => 'file|mimes:pdf,doc,docx|max:10240',
-        'coverLetter' => 'file|mimes:pdf,doc,docx|max:10240',
-        'jobDescription' => 'required|string|min:10',
-    ];
 
     public function mount()
     {
@@ -78,185 +76,109 @@ new class extends Component
     #[On('auth-success')]
     public function checkDocumentsExist()
     {
-        $userId = Auth::id() ?? 'guest';
+        $userId = Auth::id();
 
-        try {
-            $baseUrl = config('n8n.check_documents_url');
-            $response = Http::timeout(30)->get("{$baseUrl}/{$userId}");
+        $this->resumeExists = UserDocument::where('user_id', $userId)
+            ->where('documentType', DocumentType::Resume->value)->exists();
 
-            if ($response->successful()) {
-                $data = $response->json();
-                $this->resumeExists = $data['resumeExists'] ?? false;
-                $this->coverLetterExists = $data['coverLetterExists'] ?? false;
-            }
-        } catch (\Exception $e) {
-            Log::error('N8n check documents error: '.$e->getMessage());
+        $this->coverLetterExists = UserDocument::where('user_id', $userId)
+            ->where('documentType', DocumentType::CoverLetter->value)->exists();
+
+    }
+
+    public function updateDocument(DocumentType $documentType, TemporaryUploadedFile $document){
+        $userId = Auth::id();
+
+        $userDocument = UserDocument::where('user_id', $userId)
+            ->where('documentType', $documentType->value)->first();
+
+        // Delete the old record
+        if(!empty($userDocument)){
+            Storage::disk('user_documents')->delete($userDocument->getPath());
         }
+
+        $filename = $documentType->value . '.' . $document->getClientOriginalExtension();
+        $path = $userId;
+        $this->resume->storeAs(path: $path, name: $filename, options: 'user_documents');
+
+        UserDocument::updateOrCreate([
+            'user_id' => $userId,
+            'documentType' => $documentType->value,
+            'filename' => $filename,
+            'path' => $path,
+        ]);
     }
 
     public function updatedResume()
     {
-        $this->uploadResume();
+        $this->updateDocument(DocumentType::Resume, $this->resume);
     }
 
     public function updatedCoverLetter()
     {
-        $this->uploadCoverLetter();
-    }
-
-    public function uploadResume()
-    {
-        if (! $this->resume) {
-            return;
-        }
-
-        $this->uploading = true;
-        $this->resumeUploading = true;
-        $this->error = '';
-        $userId = Auth::id() ?? 'guest';
-
-        try {
-            $response = Http::timeout(120)
-                ->asMultipart()
-                ->post(config('n8n.upload_resume_url'), [
-                    [
-                        'name' => 'resume',
-                        'contents' => fopen($this->resume->getRealPath(), 'r'),
-                        'filename' => $this->resume->getClientOriginalName(),
-                    ],
-                    [
-                        'name' => 'userId',
-                        'contents' => $userId,
-                    ],
-                ]);
-
-            if ($response->successful()) {
-                $this->resumeUploaded = true;
-                $this->resumeExists = true;
-                $this->resumeText = $response->json('text') ?? $response->body();
-            } else {
-                $this->error = 'Failed to parse resume';
-                Log::error('N8n resume upload error: '.$response->body());
-            }
-        } catch (\Exception $e) {
-            $this->error = 'Error: '.$e->getMessage();
-            Log::error('N8n resume upload exception: '.$e->getMessage());
-        }
-
-        $this->uploading = false;
-        $this->resumeUploading = false;
-    }
-
-    public function uploadCoverLetter()
-    {
-        if (! $this->coverLetter) {
-            return;
-        }
-
-        $this->uploading = true;
-        $this->error = '';
-        $userId = Auth::id() ?? 'guest';
-
-        try {
-            $response = Http::timeout(120)
-                ->asMultipart()
-                ->post(config('n8n.upload_cover_letter_url'), [
-                    [
-                        'name' => 'coverLetter',
-                        'contents' => fopen($this->coverLetter->getRealPath(), 'r'),
-                        'filename' => $this->coverLetter->getClientOriginalName(),
-                    ],
-                    [
-                        'name' => 'userId',
-                        'contents' => $userId,
-                    ],
-                ]);
-
-            if ($response->successful()) {
-                $this->coverLetterUploaded = true;
-                $this->coverLetterExists = true;
-                $this->coverLetterText = $response->json('text') ?? $response->body();
-            } else {
-                $this->error = 'Failed to parse cover letter';
-                Log::error('N8n cover letter upload error: '.$response->body());
-            }
-        } catch (\Exception $e) {
-            $this->error = 'Error: '.$e->getMessage();
-            Log::error('N8n cover letter upload exception: '.$e->getMessage());
-        }
-
-        $this->uploading = false;
+        $this->updateDocument(DocumentType::CoverLetter, $this->coverLetter);
     }
 
     public function analyze()
     {
-        $this->validate([
-            'jobDescription' => 'required|string|min:10',
-        ]);
+        $user = User::findOrFail(Auth::id());
+        $request = Http::asMultipart();
 
-        $this->error = '';
+        if($this->resumeExists){
+            $resumeDocument = $user->getDocument(DocumentType::Resume);
+            $resume = Storage::disk('user_documents')->get($resumeDocument->getPath());
+            $request->attach('resume', $resume, $resumeDocument->filename);
+        }
+
+        if($this->coverLetterExists){
+            $coverLetterDocument = $user->getDocument(DocumentType::CoverLetter);
+            $coverLetter = Storage::disk('user_documents')->get($coverLetterDocument->getPath());
+            $request->attach('coverLetter', $coverLetter, 'coverLetter');
+        }
+
+        $payload = [
+            'jobDescription' => $this->jobDescription,
+            'skills'         => 'IIS: While at LANSA I had to maanage some web applications using IIS.',
+        ];
 
         try {
-            $userId = Auth::id() ?? 'guest';
-
-            // Get all previous skill responses for this user
-            $previousSkills = MissingSkill::whereHas('generatedDocument', function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            })->where('user_response', '<>', '')->get();
-
-            $skillsData = [];
-            foreach ($previousSkills as $skill) {
-                $skillsData[$skill->skill_name] = $skill->user_response;
-            }
-
-            $payload = [
-                'jobDescription' => $this->jobDescription,
-                'userId' => $userId,
-                'skills' => $skillsData,
-            ];
-
-            // Add skills if there are any previous skill responses
-            if (! empty($skillsData)) {
-                $payload['skills'] = $skillsData;
-            }
-
-            $response = Http::timeout(300)
-                ->post(config('n8n.generate_resume_url'), $payload);
+            $response = $request->post(config('n8n.generate_url'), $payload )
+            ->throw()->json();
 
             if ($response->successful()) {
-                $data = $response->json();
-                $this->resumeText = $data['resume'] ?? '';
-                $this->coverLetterText = $data['coverLetter'] ?? '';
-                $this->missingSkills = $data['missingSkills'] ?? [];
-                $this->showResults = true;
-                $this->showSkills = ! empty($this->missingSkills);
-                $this->selectedHistory = null;
-
-                $document = GeneratedDocument::create([
-                    'user_id' => $userId,
-                    'resume_text' => $this->resumeText,
-                    'cover_letter_text' => $this->coverLetterText,
-                    'has_missing_skills' => ! empty($this->missingSkills),
-                ]);
-
-                // Save missing skills
-                foreach ($this->missingSkills as $skill) {
-                    MissingSkill::create([
-                        'generated_document_id' => $document->id,
-                        'skill_name' => $skill,
-                    ]);
-                }
-
-                $this->selectedHistory = $document;
-                $this->dispatch('show-modal');
-            } else {
-                error_log('@#@@');
-                $this->error = 'Failed to analyze documents';
-                Log::error('N8n analyze error: '.$response->body());
+                Log::info($response->json());
+        /*         $data = $response->json(); */
+        /*         $this->resumeText = $data['resume'] ?? ''; */
+        /*         $this->coverLetterText = $data['coverLetter'] ?? ''; */
+        /*         $this->missingSkills = $data['missingSkills'] ?? []; */
+        /*         $this->showResults = true; */
+        /*         $this->showSkills = ! empty($this->missingSkills); */
+        /*         $this->selectedHistory = null; */
+        /**/
+        /*         $document = GeneratedDocument::create([ */
+        /*             'user_id' => $userId, */
+        /*             'resume_text' => $this->resumeText, */
+        /*             'cover_letter_text' => $this->coverLetterText, */
+        /*             'has_missing_skills' => ! empty($this->missingSkills), */
+        /*         ]); */
+        /**/
+        /*         // Save missing skills */
+        /*         foreach ($this->missingSkills as $skill) { */
+        /*             MissingSkill::create([ */
+        /*                 'generated_document_id' => $document->id, */
+        /*                 'skill_name' => $skill, */
+        /*             ]); */
+        /*         } */
+        /**/
+        /*         $this->selectedHistory = $document; */
+        /*         $this->dispatch('show-modal'); */
+        /*     } else { */
+        /*         error_log('@#@@'); */
+        /*         $this->error = 'Failed to analyze documents'; */
+        /*         Log::error('N8n analyze error: '.$response->body()); */
             }
         } catch (\Exception $e) {
-            error_log('############################');
-            $this->error = 'Error: '.$e->getMessage();
+            /* $this->error = 'Error: '.$e->getMessage(); */
             Log::error('N8n analyze exception: '.$e->getMessage());
         } finally {
         }

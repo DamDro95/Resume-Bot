@@ -8,22 +8,18 @@
 
         <div class="horizontal">
 
-            <label class="horizontal document-upload">
+            <label class="horizontal">
+                <input type="file" wire:model="resume" accept=".pdf,.doc,.docx">
                 Upload Resume
                 <div class="loader" wire:loading wire:target="resume"></div>
-                @if(!$resumeUploading && ($resumeUploaded || $resumeExists))
-                    <i title="uploaded">✓</i>
-                @endif
-                <input type="file" wire:model="resume" accept=".pdf,.doc,.docx">
+                <i title="uploaded" wire:show="resumeExists" wire:loading.remove wire:target="resume">✓</i>
             </label>
 
-            <label class="horizontal document-upload">
+            <label class="horizontal">
+                <input type="file" wire:model="coverLetter" accept=".pdf,.doc,.docx">
                 Upload Cover Letter
                 <div class="loader" wire:loading wire:target="coverLetter"></div>
-                @if(!$uploading && ($coverLetterUploaded || $coverLetterExists))
-                    <i title="Uploaded">✓</i>
-                @endif
-                <input type="file" wire:model="coverLetter" accept=".pdf,.doc,.docx">
+                <i title="uploaded" wire:show="coverLetterExists" wire:loading.remove wire:target="coverLetter">✓</i>
             </label>
         </div>
     </section>
