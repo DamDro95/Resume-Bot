@@ -5,6 +5,7 @@ namespace Livewire\Component;
 use App\Models\GeneratedDocument;
 use App\Models\MissingSkill;
 use App\Enums\DocumentType;
+use App\Enums\GenerationStatus;
 use App\Models\UserDocument;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -37,6 +38,8 @@ new class extends Component
 
     public $coverLetterExists = false;
 
+    public $isGenerating = false;
+
     public $resumeText = '';
 
     public $coverLetterText = '';
@@ -60,6 +63,16 @@ new class extends Component
         $this->checkDocumentsExist();
     }
 
+    public function updatedResume()
+    {
+        $this->updateDocument(DocumentType::Resume, $this->resume);
+    }
+
+    public function updatedCoverLetter()
+    {
+        $this->updateDocument(DocumentType::CoverLetter, $this->coverLetter);
+    }
+
     /* public function render() */
     /* { */
     /*     $userId = Auth::id() ?? 'guest'; */
@@ -72,7 +85,6 @@ new class extends Component
     /*     ]); */
     /* } */
 
-
     #[On('auth-success')]
     public function checkDocumentsExist()
     {
@@ -84,6 +96,12 @@ new class extends Component
         $this->coverLetterExists = UserDocument::where('user_id', $userId)
             ->where('documentType', DocumentType::CoverLetter->value)->exists();
 
+        $this->isGenerating = GeneratedDocument::where('user_id', $userId)
+        ->whereIn('status', [
+            GenerationStatus::Pending->value,
+            GenerationStatus::Processing->value,
+        ])
+        ->exists();
     }
 
     public function updateDocument(DocumentType $documentType, TemporaryUploadedFile $document){
@@ -99,30 +117,24 @@ new class extends Component
 
         $filename = $documentType->value . '.' . $document->getClientOriginalExtension();
         $path = $userId;
-        $this->resume->storeAs(path: $path, name: $filename, options: 'user_documents');
+        $document->storeAs(path: $path, name: $filename, options: 'user_documents');
 
         UserDocument::updateOrCreate([
             'user_id' => $userId,
             'documentType' => $documentType->value,
+        ],[
+
             'filename' => $filename,
             'path' => $path,
         ]);
     }
 
-    public function updatedResume()
-    {
-        $this->updateDocument(DocumentType::Resume, $this->resume);
-    }
-
-    public function updatedCoverLetter()
-    {
-        $this->updateDocument(DocumentType::CoverLetter, $this->coverLetter);
-    }
-
     public function analyze()
     {
         $user = User::findOrFail(Auth::id());
+
         $request = Http::asMultipart();
+        $request->timeout(300);
 
         if($this->resumeExists){
             $resumeDocument = $user->getDocument(DocumentType::Resume);
@@ -133,7 +145,7 @@ new class extends Component
         if($this->coverLetterExists){
             $coverLetterDocument = $user->getDocument(DocumentType::CoverLetter);
             $coverLetter = Storage::disk('user_documents')->get($coverLetterDocument->getPath());
-            $request->attach('coverLetter', $coverLetter, 'coverLetter');
+            $request->attach('coverLetter', $coverLetter, $coverLetterDocument->filename);
         }
 
         $payload = [
@@ -141,16 +153,29 @@ new class extends Component
             'skills'         => 'IIS: While at LANSA I had to maanage some web applications using IIS.',
         ];
 
-        try {
-            $response = $request->post(config('n8n.generate_url'), $payload )
-            ->throw()->json();
+        $generation = GeneratedDocument::Create([
+            'user_id' => $user->id,
+            'status' => GenerationStatus::Pending->value,
+            'resume_text' => '',
+            'cover_letter_text' => '',
+        ]);
 
-            if ($response->successful()) {
-                Log::info($response->json());
-        /*         $data = $response->json(); */
-        /*         $this->resumeText = $data['resume'] ?? ''; */
-        /*         $this->coverLetterText = $data['coverLetter'] ?? ''; */
-        /*         $this->missingSkills = $data['missingSkills'] ?? []; */
+        try {
+            $this->isGenerating = true;
+            $response = $request->post(config('n8n.generate_url'), $payload )->throw()->json();
+
+            $generation->status = GenerationStatus::Processing;
+            $generation->save();
+
+            if($response->successful()){
+                $generation->status = GenerationStatus::Completed;
+                $generation->save();
+
+                $data = $response->json();
+                Log::info($data);
+                $this->resumeText = $data['resume'] ?? '';
+                $this->coverLetterText = $data['coverLetter'] ?? '';
+                $this->missingSkills = $data['missingSkills'] ?? [];
         /*         $this->showResults = true; */
         /*         $this->showSkills = ! empty($this->missingSkills); */
         /*         $this->selectedHistory = null; */
@@ -178,9 +203,11 @@ new class extends Component
         /*         Log::error('N8n analyze error: '.$response->body()); */
             }
         } catch (\Exception $e) {
-            /* $this->error = 'Error: '.$e->getMessage(); */
+            $generation->status = GenerationStatus::Failed;
+            $generation->save();
             Log::error('N8n analyze exception: '.$e->getMessage());
         } finally {
+            $this->isGenerating = false;
         }
     }
 

@@ -5,7 +5,7 @@ namespace App\Enums;
 enum DocumentType: string
 {
     case Resume = 'resume';
-    case CoverLetter = 'cover_letter';
+    case CoverLetter = 'cover-letter';
 
     public function path(): string{
         return match($this){

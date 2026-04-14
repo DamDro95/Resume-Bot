@@ -100,6 +100,85 @@ main{
     }
 }
 
+@scope(button){
+    :scope, label:has(input[type="file"]){
+        padding: var(--size-5);
+        width: fit-content;
+        background-color: var(--default-primary-color);
+        border-radius: var(--size-5);
+        font-size: 1rem;
+        box-shadow: 0 4px 8px 0 var(--dark-primary-color);
+        border: none;
+        color: #FFFFFF;
+        font-weight: 900;
+        transition: all 0.3s ease-in-out;
+        display: flex;
+        gap: inherit;
+    }
+
+    :scope:hover, label:has(input[type="file"]):hover{
+        background-color: var(--dark-primary-color);
+        cursor: pointer;
+        transform: scale(1.1);
+        box-shadow: none;
+    }
+
+    :scope[disabled], button.cta[disabled]{
+        background-color: var(--dark-primary-color);
+        cursor: wait;
+        box-shadow: none;
+    }
+
+    :scope[disabled]:hover{
+        transform: none;
+    }
+
+    :scope.cta{
+        background-color: var(--accent-color);
+    }
+
+    :scope#logout{
+        background-color: transparent;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+        color: var(--secondary-text-color);
+        font-size: var(--size-4);
+        transition: none;
+    }
+
+    :scope#logout:hover{
+        transform: none;
+        text-decoration: underline;
+        color: var(--accent-color);
+        text-underline-offset: var(--size-5);
+    }
+}
+
+@scope(dialog){
+    :scope{
+        flex-direction: column;
+        justify-self: center;
+        align-self: center;
+        gap: var(--size-2);
+        width:fit-content;
+        height: fit-content;
+        padding: calc( var(--size-1) * var(--size-ratio) * 2 );
+        margin: var(--size-1);
+        border-radius: calc( var(--size-5) + var(--size-1) );
+        border: none;
+    }
+
+    :scope:open{
+        display: flex;
+    }
+
+    :scope input{
+        border: 2px solid var(--dark-primary-color);
+        border-radius: var(--size-5);
+    }
+}
+
 @scope(dialog#auth-modal){
     section{
         display: grid;
@@ -174,28 +253,6 @@ h2{
     color: var(--secondary-text-color);
 }
 
-dialog{
-    flex-direction: column;
-    justify-self: center;
-    align-self: center;
-    gap: var(--size-2);
-    width:fit-content;
-    height: fit-content;
-    padding: var(--size-1);
-    margin: var(--size-1);
-    border-radius: calc( var(--size-5) + var(--size-1) );
-    border: none;
-}
-
-dialog:open{
-    display: flex;
-}
-
-dialog input{
-    border: 2px solid var(--dark-primary-color);
-    border-radius: var(--size-5);
-}
-
 section{
     display: flex;
     flex-direction: column;
@@ -239,57 +296,6 @@ i{
     color: var(--accent-color);
 }
 
-button, label:has(input[type="file"]){
-    padding: var(--size-5);
-    width: fit-content;
-    background-color: var(--default-primary-color);
-    border-radius: var(--size-5);
-    font-size: 1rem;
-    box-shadow: 0 4px 8px 0 var(--dark-primary-color);
-    border: none;
-    color: #FFFFFF;
-    font-weight: 900;
-    transition: all 0.3s ease-in-out;
-}
-
-button:hover, label:has(input[type="file"]):hover{
-    background-color: var(--dark-primary-color);
-    cursor: pointer;
-    transform: scale(1.1);
-    box-shadow: none;
-}
-
-button[disabled], button.cta[disabled]{
-    background-color: var(--dark-primary-color);
-    cursor: wait;
-    box-shadow: none;
-}
-
-button[disabled]:hover{
-    transform: none;
-}
-
-button.cta{
-    background-color: var(--accent-color);
-}
-
-button#logout{
-    background-color: transparent;
-    padding: 0;
-    border: none;
-    box-shadow: none;
-    color: var(--secondary-text-color);
-    font-size: var(--size-4);
-    transition: none;
-}
-
-button#logout:hover{
-    transform: none;
-    text-decoration: underline;
-    color: var(--accent-color);
-    text-underline-offset: var(--size-5);
-}
-
 form button{
     align-self: end;
 }
@@ -331,12 +337,13 @@ div[role='alert'] p::before{
 
 /* HTML: <div class="loader"></div> */
 .loader {
-  aspect-ratio: 1;
-  border-radius: 50%;
-  border: 8px solid var(--accent-color);
-  animation:
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 8px solid var(--accent-color);
+    animation:
     l20-1 0.8s infinite linear alternate,
     l20-2 1.6s infinite linear;
+    width: 1px;
 }
 
 @keyframes l20-1{

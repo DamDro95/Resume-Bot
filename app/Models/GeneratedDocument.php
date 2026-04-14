@@ -10,5 +10,6 @@ class GeneratedDocument extends Model
         'user_id',
         'resume_text',
         'cover_letter_text',
+        'status',
     ];
 }

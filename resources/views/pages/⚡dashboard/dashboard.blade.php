@@ -12,14 +12,14 @@
                 <input type="file" wire:model="resume" accept=".pdf,.doc,.docx">
                 Upload Resume
                 <div class="loader" wire:loading wire:target="resume"></div>
-                <i title="uploaded" wire:show="resumeExists" wire:loading.remove wire:target="resume">✓</i>
+                <i title="uploaded" wire:show="resumeExists" wire:loading.remove wire:target="resume">✔</i>
             </label>
 
             <label class="horizontal">
                 <input type="file" wire:model="coverLetter" accept=".pdf,.doc,.docx">
                 Upload Cover Letter
                 <div class="loader" wire:loading wire:target="coverLetter"></div>
-                <i title="uploaded" wire:show="coverLetterExists" wire:loading.remove wire:target="coverLetter">✓</i>
+                <i title="uploaded" wire:show="coverLetterExists" wire:loading.remove wire:target="coverLetter">✔</i>
             </label>
         </div>
     </section>
@@ -40,15 +40,25 @@
                 ></textarea>
             </label>
 
-            <button
-                type="submit"
-                wire:loading.attr="disabled"
-                wire:target="analyze"
-                class="cta"
-            >
-                Analyze & Generate
-                <div class="loader" wire:loading wire:target="analyze"></div>
-            </button>
+            @if(!$isGenerating)
+                <button
+                    type="submit"
+                    class="cta"
+                >
+                    Generate
+                </button>
+            @else
+                <button
+                    type="submit"
+                    wire:poll.5
+                    class="cta"
+                    disabled
+                >
+                    Generating...
+                    <div class="loader"></div>
+                </button>
+            @endif
+
         </form>
     </section>
 
