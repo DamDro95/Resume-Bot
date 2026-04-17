@@ -40,7 +40,7 @@
                 ></textarea>
             </label>
 
-            @if(!$this->isGenerating())
+            @if(!$this->isGenerating)
                 <button
                     type="submit"
                     class="cta"
@@ -50,7 +50,7 @@
             @else
                 <button
                     type="submit"
-                    wire:poll.5="isGenerating"
+                    wire:poll.5="checkGeneration"
                     class="cta"
                     disabled
                 >

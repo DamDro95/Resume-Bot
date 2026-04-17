@@ -56,7 +56,6 @@ class GenerateDocument implements ShouldQueue
             'cover_letter_text' => '',
         ]);
 
-
         try {
             $response = $request->post(config('n8n.generate_url'), $this->payload )->throw();
 
@@ -67,10 +66,11 @@ class GenerateDocument implements ShouldQueue
 
                 $data = $response->json();
 
-                $generation->status = GenerationStatus::Completed;
-                $generation->resume_text = $data['resume_text'] ?? '';
-                $generation->cover_letter_text = $data['cover_letter_text'] ?? '';
-                $generation->save();
+                $generation->update([
+                    'status' => GenerationStatus::Completed,
+                    'resume_text' => $data['resume_text'] ?? '',
+                    'cover_letter_text' => $data['cover_letter_text'] ?? '',
+                ]);
 
                 $missingSkills = $data['missingSkills'] ?? [];
 

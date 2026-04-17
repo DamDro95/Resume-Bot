@@ -44,5 +44,9 @@ env-refresh:
 	docker compose exec app php artisan config:clear
 	docker compose exec app php artisan cache:clear
 
+queue:
+	docker compose exec app php artisan queue:listen
+
 fix-perms:
 	docker compose exec app chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+

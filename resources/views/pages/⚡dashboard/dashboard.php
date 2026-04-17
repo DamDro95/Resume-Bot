@@ -17,7 +17,6 @@ use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\Attributes\Session;
-use Livewire\Attributes\Computed;
 
 new class extends Component
 {
@@ -53,7 +52,9 @@ new class extends Component
 
     public $selectedHistory = null;
 
-    public function isGenerating(): bool{
+    public bool $isGenerating = false;
+
+    public function checkGeneration(): void{
         $userId = Auth::id();
 
         $isGenerating = GeneratedDocument::where('user_id', $userId)
@@ -63,25 +64,33 @@ new class extends Component
         ])
         ->exists();
 
-        if(!$isGenerating){
-            $generation = GeneratedDocument::where('user_id', $userId)
-            ->whereIn('status', [
-                GenerationStatus::Completed->value,
-            ])
-            ->where('viewed', false)
-            ->first();
-
-            if(!empty($generation)){
-                $this->dispatch('document-generation-complete');
-            }
+        //If the state is the same do nothing
+        if( $this->isGenerating === $isGenerating){
+            return;
         }
 
-        return $isGenerating;
+        // Find a document that has not been viewed, which is most likely the one that got generated
+        $generation = GeneratedDocument::where('user_id', $userId)
+        ->whereIn('status', [
+            GenerationStatus::Completed->value,
+        ])
+        ->where('viewed', false)
+        ->first();
+
+        $this->isGenerating = $isGenerating;
+
+        // If nothing found do nothing
+        if(empty($generation)){
+            return;
+        }
+
+        $this->dispatch('document-generation-complete');
     }
 
     public function mount()
     {
         $this->checkDocumentsExist();
+        $this->checkGeneration();
     }
 
     public function updatedResume()
@@ -158,6 +167,8 @@ new class extends Component
             attachResume: $this->resumeExists,
             attachCoverLetter: $this->coverLetterExists,
         );
+
+        $this->isGenerating = true;
     }
 
     public function regenerate($skillDescriptions)
