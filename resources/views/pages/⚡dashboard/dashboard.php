@@ -15,6 +15,7 @@ use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
+use Livewire\Attributes\Computed;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\Attributes\Session;
 
@@ -54,6 +55,20 @@ new class extends Component
 
     public bool $isGenerating = false;
 
+    public array $history = [];
+
+    public function mount()
+    {
+        $this->checkDocumentsExist();
+        $this->checkGeneration();
+    }
+
+    #[Computed]
+    public function generations()
+    {
+        return GeneratedDocument::Paginate(10);
+    }
+
     public function checkGeneration(): void{
         $userId = Auth::id();
 
@@ -85,12 +100,6 @@ new class extends Component
         }
 
         $this->dispatch('document-generation-complete');
-    }
-
-    public function mount()
-    {
-        $this->checkDocumentsExist();
-        $this->checkGeneration();
     }
 
     public function updatedResume()

@@ -62,6 +62,32 @@
         </form>
     </section>
 
+    <section>
+        <h2>History</h2>
+        <table>
+            <thead>
+                <tr>
+                    <td><h3>ID</h3></td>
+                    <td><h3>Actions</h3></td>
+                </tr>
+            <thead>
+            <tbody>
+                @foreach($this->generations as $generation)
+                    <tr>
+                        <td>
+                            <span>{{ $generation->created_at->format('M d, Y H:i') }}</span>
+                        </td>
+                        <td>
+                            <button wire:click="viewHistory({{ $generation->id }})">View</button>
+                            <button wire:click="deleteHistory({{ $generation->id }})">Delete</button>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+        {{ $this->generations->links() }}
+    </section>
+
     {{--@if($history->count() > 0)
         <section>
             <h2>History</h2>
