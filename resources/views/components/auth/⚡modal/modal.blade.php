@@ -32,13 +32,13 @@
                     <div class="loader" wire:loading></div>
                 </button>
 
-                <button id="linkedin" wire:loading.attr="disabled">
+                <!-- <button id="linkedin" wire:loading.attr="disabled">
                     Continue with LinkedIn
                 </button>
 
                 <button id="google" wire:loading.attr="disabled">
                     Continue with Google
-                </button>
+                </button> -->
 
             </form>
         @elseif($step === 'code')
@@ -61,12 +61,12 @@
                     <div class="loader" wire:loading wire:target="submitCode"></div>
                 </button>
 
-                <button type="button" wire:click="resendCode">
+                <button type="button" wire:click="resendCode" class="secondary">
                     Resend code
                     <div class="loader" wire:loading wire:target="resendCode"></div>
                 </button>
 
-                <button type="button" wire:click="back">
+                <button type="button" wire:click="back" class="secondary">
                     Use a different email
                     <div class="loader" wire:loading wire:target="back"></div>
                 </button>

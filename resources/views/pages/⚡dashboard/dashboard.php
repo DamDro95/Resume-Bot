@@ -7,28 +7,27 @@ use App\Models\MissingSkill;
 use App\Enums\DocumentType;
 use App\Enums\GenerationStatus;
 use App\Models\UserDocument;
-use App\Models\User;
+use App\Jobs\GenerateDocument;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\Attributes\Session;
+use Livewire\Attributes\Computed;
 
 new class extends Component
 {
     use WithFileUploads;
     use WithPagination;
 
-    #[Validate('file|mimes:pdf,doc,docx|max:10240')]
+    #[Validate('file|mimes:pdf|max:10240')]
     public $resume;
 
-    #[Validate('file|mimes:pdf,doc,docx|max:10240')]
+    #[Validate('file|mimes:pdf|max:10240')]
     public $coverLetter;
 
     #[Validate('required|string|min:10'), Session]
@@ -37,8 +36,6 @@ new class extends Component
     public $resumeExists = false;
 
     public $coverLetterExists = false;
-
-    public $isGenerating = false;
 
     public $resumeText = '';
 
@@ -56,7 +53,31 @@ new class extends Component
 
     public $selectedHistory = null;
 
-    public $selectedHistoryTitle = '';
+    public function isGenerating(): bool{
+        $userId = Auth::id();
+
+        $isGenerating = GeneratedDocument::where('user_id', $userId)
+        ->whereIn('status', [
+            GenerationStatus::Pending->value,
+            GenerationStatus::Processing->value,
+        ])
+        ->exists();
+
+        if(!$isGenerating){
+            $generation = GeneratedDocument::where('user_id', $userId)
+            ->whereIn('status', [
+                GenerationStatus::Completed->value,
+            ])
+            ->where('viewed', false)
+            ->first();
+
+            if(!empty($generation)){
+                $this->dispatch('document-generation-complete');
+            }
+        }
+
+        return $isGenerating;
+    }
 
     public function mount()
     {
@@ -66,11 +87,13 @@ new class extends Component
     public function updatedResume()
     {
         $this->updateDocument(DocumentType::Resume, $this->resume);
+        $this->resumeExists = true;
     }
 
     public function updatedCoverLetter()
     {
         $this->updateDocument(DocumentType::CoverLetter, $this->coverLetter);
+        $this->coverLetterExists = true;
     }
 
     /* public function render() */
@@ -95,13 +118,6 @@ new class extends Component
 
         $this->coverLetterExists = UserDocument::where('user_id', $userId)
             ->where('documentType', DocumentType::CoverLetter->value)->exists();
-
-        $this->isGenerating = GeneratedDocument::where('user_id', $userId)
-        ->whereIn('status', [
-            GenerationStatus::Pending->value,
-            GenerationStatus::Processing->value,
-        ])
-        ->exists();
     }
 
     public function updateDocument(DocumentType $documentType, TemporaryUploadedFile $document){
@@ -131,84 +147,17 @@ new class extends Component
 
     public function analyze()
     {
-        $user = User::findOrFail(Auth::id());
-
-        $request = Http::asMultipart();
-        $request->timeout(300);
-
-        if($this->resumeExists){
-            $resumeDocument = $user->getDocument(DocumentType::Resume);
-            $resume = Storage::disk('user_documents')->get($resumeDocument->getPath());
-            $request->attach('resume', $resume, $resumeDocument->filename);
-        }
-
-        if($this->coverLetterExists){
-            $coverLetterDocument = $user->getDocument(DocumentType::CoverLetter);
-            $coverLetter = Storage::disk('user_documents')->get($coverLetterDocument->getPath());
-            $request->attach('coverLetter', $coverLetter, $coverLetterDocument->filename);
-        }
-
         $payload = [
             'jobDescription' => $this->jobDescription,
             'skills'         => 'IIS: While at LANSA I had to maanage some web applications using IIS.',
         ];
 
-        $generation = GeneratedDocument::Create([
-            'user_id' => $user->id,
-            'status' => GenerationStatus::Pending->value,
-            'resume_text' => '',
-            'cover_letter_text' => '',
-        ]);
-
-        try {
-            $this->isGenerating = true;
-            $response = $request->post(config('n8n.generate_url'), $payload )->throw()->json();
-
-            $generation->status = GenerationStatus::Processing;
-            $generation->save();
-
-            if($response->successful()){
-                $generation->status = GenerationStatus::Completed;
-                $generation->save();
-
-                $data = $response->json();
-                Log::info($data);
-                $this->resumeText = $data['resume'] ?? '';
-                $this->coverLetterText = $data['coverLetter'] ?? '';
-                $this->missingSkills = $data['missingSkills'] ?? [];
-        /*         $this->showResults = true; */
-        /*         $this->showSkills = ! empty($this->missingSkills); */
-        /*         $this->selectedHistory = null; */
-        /**/
-        /*         $document = GeneratedDocument::create([ */
-        /*             'user_id' => $userId, */
-        /*             'resume_text' => $this->resumeText, */
-        /*             'cover_letter_text' => $this->coverLetterText, */
-        /*             'has_missing_skills' => ! empty($this->missingSkills), */
-        /*         ]); */
-        /**/
-        /*         // Save missing skills */
-        /*         foreach ($this->missingSkills as $skill) { */
-        /*             MissingSkill::create([ */
-        /*                 'generated_document_id' => $document->id, */
-        /*                 'skill_name' => $skill, */
-        /*             ]); */
-        /*         } */
-        /**/
-        /*         $this->selectedHistory = $document; */
-        /*         $this->dispatch('show-modal'); */
-        /*     } else { */
-        /*         error_log('@#@@'); */
-        /*         $this->error = 'Failed to analyze documents'; */
-        /*         Log::error('N8n analyze error: '.$response->body()); */
-            }
-        } catch (\Exception $e) {
-            $generation->status = GenerationStatus::Failed;
-            $generation->save();
-            Log::error('N8n analyze exception: '.$e->getMessage());
-        } finally {
-            $this->isGenerating = false;
-        }
+        GenerateDocument::dispatch(
+            userId: Auth::id(),
+            payload: $payload,
+            attachResume: $this->resumeExists,
+            attachCoverLetter: $this->coverLetterExists,
+        );
     }
 
     public function regenerate($skillDescriptions)

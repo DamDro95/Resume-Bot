@@ -8,7 +8,7 @@
     --divider-color: #BDBDBD;
 
     --size-base: 1rem;
-    --size-ratio: 1.125;
+    --size-ratio: 1.3;
     --size-6: calc(var(--size-5) / var(--size-ratio));
     --size-5: calc(var(--size-base) / var(--size-ratio));
     --size-4: calc(var(--size-base) * var(--size-ratio));
@@ -100,20 +100,32 @@ main{
     }
 }
 
-@scope(button){
-    :scope, label:has(input[type="file"]){
+@scope(button, label:has(input[type="file"])){
+    :scope{
         padding: var(--size-5);
         width: fit-content;
         background-color: var(--default-primary-color);
         border-radius: var(--size-5);
         font-size: 1rem;
-        box-shadow: 0 4px 8px 0 var(--dark-primary-color);
+        box-shadow: 0 1px 3px 0 var(--dark-primary-color);
         border: none;
         color: #FFFFFF;
         font-weight: 900;
         transition: all 0.3s ease-in-out;
         display: flex;
         gap: inherit;
+        justify-content: center;
+    }
+
+    :scope.secondary{
+        background-color: #FFFFFF;
+        color: var(--text-primary-color);
+        box-shadow: none;
+        border: 1px var(--default-primary-color) solid;
+    }
+
+    :scope.secondary:hover{
+        color: #FFFFFF;
     }
 
     :scope:hover, label:has(input[type="file"]):hover{
@@ -123,7 +135,7 @@ main{
         box-shadow: none;
     }
 
-    :scope[disabled], button.cta[disabled]{
+    :scope[disabled], :scope.cta[disabled]{
         background-color: var(--dark-primary-color);
         cursor: wait;
         box-shadow: none;
@@ -135,6 +147,7 @@ main{
 
     :scope.cta{
         background-color: var(--accent-color);
+        box-shadow: none;
     }
 
     :scope#logout{
@@ -163,7 +176,7 @@ main{
         gap: var(--size-2);
         width:fit-content;
         height: fit-content;
-        padding: calc( var(--size-1) * var(--size-ratio) * 2 );
+        padding: calc( var(--size-1) * var(--size-ratio) );
         margin: var(--size-1);
         border-radius: calc( var(--size-5) + var(--size-1) );
         border: none;
@@ -203,6 +216,7 @@ main{
 
     button{
         width: 100% !important;
+
     }
 
     button#email:hover{

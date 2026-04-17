@@ -11,5 +11,6 @@ class GeneratedDocument extends Model
         'resume_text',
         'cover_letter_text',
         'status',
+        'viewed'
     ];
 }

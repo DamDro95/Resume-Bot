@@ -9,14 +9,14 @@
         <div class="horizontal">
 
             <label class="horizontal">
-                <input type="file" wire:model="resume" accept=".pdf,.doc,.docx">
+                <input type="file" wire:model="resume" accept=".pdf">
                 Upload Resume
                 <div class="loader" wire:loading wire:target="resume"></div>
                 <i title="uploaded" wire:show="resumeExists" wire:loading.remove wire:target="resume">✔</i>
             </label>
 
             <label class="horizontal">
-                <input type="file" wire:model="coverLetter" accept=".pdf,.doc,.docx">
+                <input type="file" wire:model="coverLetter" accept=".pdf">
                 Upload Cover Letter
                 <div class="loader" wire:loading wire:target="coverLetter"></div>
                 <i title="uploaded" wire:show="coverLetterExists" wire:loading.remove wire:target="coverLetter">✔</i>
@@ -40,7 +40,7 @@
                 ></textarea>
             </label>
 
-            @if(!$isGenerating)
+            @if(!$this->isGenerating())
                 <button
                     type="submit"
                     class="cta"
@@ -50,7 +50,7 @@
             @else
                 <button
                     type="submit"
-                    wire:poll.5
+                    wire:poll.5="isGenerating"
                     class="cta"
                     disabled
                 >
