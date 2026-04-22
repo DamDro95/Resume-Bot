@@ -19,12 +19,12 @@ shell:
 	docker compose exec app bash
 
 wait-for-db:
-	@echo "Waiting for MySQL to be ready..."
-	@until docker compose exec mysql mysqladmin ping -h localhost --silent 2>/dev/null; do \
-		echo "MySQL not ready, retrying..."; \
+	@echo "Waiting for mariadb to be ready..."
+	@until docker compose exec mariadb mariadb-admin ping -h localhost --silent 2>/dev/null; do \
+		echo "mariadb not ready, retrying..."; \
 		sleep 2; \
 	done
-	@echo "MySQL is ready!"
+	@echo "mariadb is ready!"
 
 setup: up wait-for-db install migrate
 
