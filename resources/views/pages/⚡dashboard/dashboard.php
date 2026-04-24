@@ -165,6 +165,7 @@ new class extends Component
 
     public function analyze()
     {
+        Log::info('asd');
         $payload = [
             'jobDescription' => $this->jobDescription,
             'skills'         => 'IIS: While at LANSA I had to maanage some web applications using IIS.',

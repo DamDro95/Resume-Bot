@@ -22,6 +22,7 @@
     margin: 0;
     color: var(--text-primary-color);
     font-family: Roboto, Sans-serif;
+    outline: none;
 }
 
 body{
@@ -45,7 +46,7 @@ main{
     }
 
     main{
-        margin: 0 16.5vw;
+        margin: 0 calc(33vh/2);
     }
 }
 
@@ -185,10 +186,57 @@ main{
     :scope:open{
         display: flex;
     }
+}
 
-    :scope input{
-        border: 2px solid var(--dark-primary-color);
+@scope(table){
+
+    th, caption{
+        font-family: "Martian Mono", monospace;
+    }
+
+    caption{
+        text-align: start;
+        font-weight: 700;
+        font-size: var(--size-2);
+        line-height: 1.2;
+        padding: var(--size-5) 0;
+        color: var(--secondary-text-color);
+    }
+
+    th{
+        text-align: start;
+        font-size: var(--size-3);
+        line-height: 1.3;
+        padding: var(--size-4) 0;
+        color: var(--dark-primary-color);
+    }
+
+    td{
+        padding-bottom: var(--size-4);
+    }
+}
+
+@scope(input, textarea){
+    :scope{
+        padding: var(--size-5);
+        border: 1px solid var(--dark-primary-color);
         border-radius: var(--size-5);
+        font-size: var(--size-4);
+        resize: vertical;
+    }
+
+    :scope:focus{
+        border: 3px solid var(--dark-primary-color);
+    }
+}
+
+@scope(section#generations-list){
+    button.cta{
+        align-self: end;
+    }
+
+    th:last-child{
+        text-align: end;
     }
 }
 
@@ -216,7 +264,6 @@ main{
 
     button{
         width: 100% !important;
-
     }
 
     button#email:hover{
@@ -267,6 +314,13 @@ h2{
     color: var(--secondary-text-color);
 }
 
+.actions{
+    display: flex;
+    gap: var(--size-5);
+    justify-content: end;
+    flex-direction: row;
+}
+
 section{
     display: flex;
     flex-direction: column;
@@ -295,13 +349,6 @@ label{
     color: inherit;
 }
 
-input, textarea{
-    padding: var(--size-5);
-    border: none;
-    border-radius: var(--size-5);
-    font-size: var(--size-4);
-}
-
 input[type="file"]{
     display: none;
 }
@@ -323,11 +370,6 @@ pre{
     white-space: break-spaces;
     height: 33vh;
     overflow-y: scroll;
-}
-
-table{
-    border-spacing: 0 var(--size-4);
-
 }
 
 .document-result{
