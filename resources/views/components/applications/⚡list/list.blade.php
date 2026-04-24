@@ -1,6 +1,6 @@
 <section id="applications-list">
 
-    <livewire:applications.create/>
+    <livewire:applications.create @application-created="$refresh"/>
 
     <section class="controls">
         <button
@@ -23,12 +23,12 @@
         <tbody>
             @foreach ($applications as $application)
                 <tr>
-                    <td>{{ $application->created_at->format('M d, Y H:i') }}</td>
-                    <td>{{ $application->created_at->format('M d, Y H:i') }}</td>
+                    <td>{{ $application->company_name }}</td>
+                    <td>{{ $application->job_title }}</td>
                     <td>{{ $application->created_at->format('M d, Y H:i') }}</td>
                     <td class="actions">
                         <button wire:click="viewHistory({{ $application->id }})">View</button>
-                        <button wire:click="deleteHistory({{ $application->id }})">Delete</button>
+                        <button wire:click="deleteApplication({{ $application->id }})">Delete</button>
                     </td>
                 </tr>
             @endforeach

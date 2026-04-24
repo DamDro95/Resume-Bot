@@ -11,10 +11,15 @@ new class extends Component
 
     public function render(){
 
-        $applications = Application::Paginate(10);
+        $applications = Application::latest()->Paginate(10);
 
         return $this->view([
             'applications' => $applications,
         ]);
+    }
+
+    public function deleteApplication(int $id){
+        $application = Application::find($id);
+        $application->delete();
     }
 };
