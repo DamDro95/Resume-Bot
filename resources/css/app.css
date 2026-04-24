@@ -119,6 +119,12 @@ main{
         justify-content: center;
     }
 
+    :scope label{
+        font-size: inherit;
+        color: inherit;
+        font-weight: inherit;
+    }
+
     :scope.secondary{
         background-color: #FFFFFF;
         color: var(--text-primary-color);
@@ -186,6 +192,12 @@ main{
 
     :scope:open{
         display: flex;
+    }
+
+    @media (min-width: 768px) {
+        :scope{
+            width: 33vw;
+        }
     }
 }
 

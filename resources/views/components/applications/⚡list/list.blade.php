@@ -1,6 +1,8 @@
 <section id="applications-list">
 
     <livewire:applications.create @application-created="$refresh"/>
+    <livewire:applications.update @applicationUpdated="$refresh"/>
+    <livewire:applications.delete @applicationDeleted="$refresh"/>
 
     <section class="controls">
         <button
@@ -27,8 +29,17 @@
                     <td>{{ $application->job_title }}</td>
                     <td>{{ $application->created_at->format('M d, Y H:i') }}</td>
                     <td class="actions">
-                        <button wire:click="viewHistory({{ $application->id }})">View</button>
-                        <button wire:click="deleteApplication({{ $application->id }})">Delete</button>
+                        <button
+                            x-on:click="$wire.dispatchTo('applications.update', 'load-application', { 'application': {{ $application }} } )"
+                        >
+                            <label>Update</label>
+                        </button>
+                        <button
+                            x-on:click="$wire.dispatchTo('applications.delete', 'show', { 'id': {{ $application->id }} } )"
+                        >
+                            <label>Delete</label>
+                        </button>
+
                     </td>
                 </tr>
             @endforeach

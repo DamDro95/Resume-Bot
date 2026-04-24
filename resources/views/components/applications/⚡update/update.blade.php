@@ -1,15 +1,18 @@
 <dialog
-    id="application-create"
+    x-data="{id:0}"
     x-on:show="$el.showModal()"
-    x-on:click="$event.target.nodeName === 'DIALOG' && $el.close()"
     x-on:close="$el.close()"
+    x-on:click="$event.target.nodeName === 'DIALOG' && $el.close()"
 >
     <section>
-
-        <h2>Create A New Application Process</h2>
-
         @island
-        <form method="POST" wire:submit.stop="createApplication">
+
+        <h2>Manage Application</h2>
+
+        <form method="POST" wire:submit.stop="updateApplication">
+
+            <input type="hidden" wire:model="id" requred value="{{ $id }}">
+
             <label>
                 Company
                 <input type="text" wire:model="companyName" required/>
@@ -44,7 +47,7 @@
             </label>
 
             <section class="actions">
-                <button type="button" @click="$dispatch('close')">Cancel</button>
+                <button type="button" @click="$root.close()">Cancel</button>
                 <button type="submit" class="cta">
                     <label wire:loading.remove>Submit</label>
                     <div class="loader" wire:loading></div>

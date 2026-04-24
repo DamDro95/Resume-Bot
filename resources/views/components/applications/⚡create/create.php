@@ -8,7 +8,6 @@ use App\Models\Application;
 
 new class extends Component
 {
-
     #[Validate('required')]
     public string $companyName;
 
@@ -30,7 +29,7 @@ new class extends Component
             'company_name' => $this->companyName,
             'job_title' => $this->jobTitle,
             'job_description' => $this->jobDescription,
-            'additional_instruction' => $this->additionalInstructions,
+            'additional_instructions' => $this->additionalInstructions,
         ]);
 
         $this->reset();

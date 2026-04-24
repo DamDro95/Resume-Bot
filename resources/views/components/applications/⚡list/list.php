@@ -3,6 +3,7 @@
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Application;
+use Illuminate\Support\Facades\Log;
 
 new class extends Component
 {
@@ -16,10 +17,5 @@ new class extends Component
         return $this->view([
             'applications' => $applications,
         ]);
-    }
-
-    public function deleteApplication(int $id){
-        $application = Application::find($id);
-        $application->delete();
     }
 };
