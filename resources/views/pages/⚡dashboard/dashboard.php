@@ -2,7 +2,7 @@
 
 namespace Livewire\Component;
 
-use App\Models\GeneratedDocument;
+use App\Models\Application;
 use App\Models\MissingSkill;
 use App\Enums\DocumentType;
 use App\Enums\GenerationStatus;
@@ -66,17 +66,13 @@ new class extends Component
     #[Computed]
     public function generations()
     {
-        return GeneratedDocument::Paginate(10);
+        return Application::Paginate(10);
     }
 
     public function checkGeneration(): void{
         $userId = Auth::id();
 
-        $isGenerating = GeneratedDocument::where('user_id', $userId)
-        ->whereIn('status', [
-            GenerationStatus::Pending->value,
-            GenerationStatus::Processing->value,
-        ])
+        $isGenerating = Application::where('user_id', $userId)
         ->exists();
 
         //If the state is the same do nothing
@@ -85,11 +81,7 @@ new class extends Component
         }
 
         // Find a document that has not been viewed, which is most likely the one that got generated
-        $generation = GeneratedDocument::where('user_id', $userId)
-        ->whereIn('status', [
-            GenerationStatus::Completed->value,
-        ])
-        ->where('viewed', false)
+        $generation = Application::where('user_id', $userId)
         ->first();
 
         $this->isGenerating = $isGenerating;
@@ -117,7 +109,7 @@ new class extends Component
     /* public function render() */
     /* { */
     /*     $userId = Auth::id() ?? 'guest'; */
-    /*     $history = GeneratedDocument::where('user_id', $userId) */
+    /*     $history = Application::where('user_id', $userId) */
     /*         ->orderBy('created_at', 'desc') */
     /*         ->paginate(10); */
     /**/
@@ -239,7 +231,7 @@ new class extends Component
     {
         $userId = Auth::id() ?? 'guest';
 
-        $this->selectedHistory = GeneratedDocument::with('missingSkills')
+        $this->selectedHistory = Application::with('missingSkills')
             ->where('id', $id)
             ->where('user_id', $userId)
             ->first();
@@ -273,7 +265,7 @@ new class extends Component
     public function viewHistory($id)
     {
         $userId = Auth::id() ?? 'guest';
-        $this->selectedHistory = GeneratedDocument::with('missingSkills')
+        $this->selectedHistory = Application::with('missingSkills')
             ->where('id', $id)
             ->where('user_id', $userId)
             ->first();
@@ -290,7 +282,7 @@ new class extends Component
     public function deleteHistory($id)
     {
         $userId = Auth::id() ?? 'guest';
-        GeneratedDocument::where('id', $id)
+        Application::where('id', $id)
             ->where('user_id', $userId)
             ->delete();
     }

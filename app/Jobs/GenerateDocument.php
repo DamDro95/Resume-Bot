@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Enums\DocumentType;
-use App\Models\GeneratedDocument;
+use App\Models\Application;
 use App\Models\MissingSkill;
 use App\Enums\GenerationStatus;
 
@@ -49,7 +49,7 @@ class GenerateDocument implements ShouldQueue
             $request->attach('coverLetter', $coverLetter, $coverLetterDocument->filename);
         }
 
-        $generation = GeneratedDocument::Create([
+        $generation = Application::Create([
             'user_id' => $user->id,
             'status' => GenerationStatus::Pending->value,
             'resume_text' => '',

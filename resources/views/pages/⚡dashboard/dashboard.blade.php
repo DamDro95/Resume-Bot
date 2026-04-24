@@ -24,9 +24,9 @@
         </div>
     </section>
 
-    <livewire:generations.list/>
+    <livewire:applications.list/>
 
-    <!--<section>
+    {{--<section>
         <form wire:submit.prevent="analyze">
 
             <h2>Enter Details</h2>
@@ -62,5 +62,5 @@
             @endif
 
         </form>
-    </section> -->
+    </section> --}}
 </main>

@@ -1,5 +1,5 @@
 <dialog
-    id="generation-create"
+    id="application-create"
     x-on:show="$el.showModal()"
     x-on:click="$event.target.nodeName === 'DIALOG' && $el.close()"
     x-on:close="$el.close()"
@@ -8,7 +8,7 @@
 
         <h2>Create A New Application Process</h2>
 
-        <form>
+        <form wire:submit="createApplication">
             <label>
                 Company
                 <input type="text"/>

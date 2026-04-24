@@ -2,7 +2,7 @@
 
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\GeneratedDocument;
+use App\Models\Application;
 
 new class extends Component
 {
@@ -11,10 +11,10 @@ new class extends Component
 
     public function render(){
 
-        $generations = GeneratedDocument::Paginate(10);
+        $applications = Application::Paginate(10);
 
         return $this->view([
-            'generations' => $generations,
+            'applications' => $applications,
         ]);
     }
 };

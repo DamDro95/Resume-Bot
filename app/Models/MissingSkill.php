@@ -15,6 +15,6 @@ class MissingSkill extends Model
 
     public function generatedDocument(): BelongsTo
     {
-        return $this->belongsTo(GeneratedDocument::class);
+        return $this->belongsTo(Application::class);
     }
 }

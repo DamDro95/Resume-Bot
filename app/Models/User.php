@@ -51,7 +51,7 @@ class User extends Authenticatable
 
     public function generations(): HasMany
     {
-        return $this->hasMany(GeneratedDocument::class);
+        return $this->hasMany(Application::class);
     }
 
     public function getDocument(DocumentType $type): ?UserDocument

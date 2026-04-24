@@ -230,13 +230,18 @@ main{
     }
 }
 
-@scope(section#generations-list){
-    button.cta{
+@scope(section#applications-list){
+    .controls button.cta{
         align-self: end;
     }
 
     th:last-child{
         text-align: end;
+    }
+
+    .getting-started{
+        align-items: center;
+        text-align: center;
     }
 }
 
