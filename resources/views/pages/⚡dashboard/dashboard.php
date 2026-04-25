@@ -106,18 +106,6 @@ new class extends Component
         $this->coverLetterExists = true;
     }
 
-    /* public function render() */
-    /* { */
-    /*     $userId = Auth::id() ?? 'guest'; */
-    /*     $history = Application::where('user_id', $userId) */
-    /*         ->orderBy('created_at', 'desc') */
-    /*         ->paginate(10); */
-    /**/
-    /*     return $this->view([ */
-    /*         'history' => $history, */
-    /*     ]); */
-    /* } */
-
     #[On('auth-success')]
     public function checkDocumentsExist()
     {
@@ -157,7 +145,6 @@ new class extends Component
 
     public function analyze()
     {
-        Log::info('asd');
         $payload = [
             'jobDescription' => $this->jobDescription,
             'skills'         => 'IIS: While at LANSA I had to maanage some web applications using IIS.',
@@ -173,118 +160,10 @@ new class extends Component
         $this->isGenerating = true;
     }
 
-    public function regenerate($skillDescriptions)
-    {
-        if (empty($this->resumeText) || empty($this->coverLetterText)) {
-            $this->error = 'No documents to regenerate';
-
-            return;
-        }
-
-        $this->error = '';
-
-        try {
-            $userId = Auth::id() ?? 'guest';
-
-            $response = Http::timeout(300)
-                ->post(config('n8n.generate_url'), [
-                    'jobDescription' => $this->jobDescription,
-                    'userId' => $userId,
-                    'skills' => $skillDescriptions,
-                ]);
-
-            if ($response->successful()) {
-                $data = $response->json();
-                $this->resumeText = $data['resume'] ?? '';
-                $this->coverLetterText = $data['coverLetter'] ?? '';
-                $this->showSkills = false;
-            } else {
-                $this->error = 'Failed to regenerate documents';
-                Log::error('N8n regenerate error: '.$response->body());
-            }
-        } catch (\Exception $e) {
-            $this->error = 'Error: '.$e->getMessage();
-            Log::error('N8n regenerate exception: '.$e->getMessage());
-        } finally {
-        }
-    }
-
-    public function saveSkillResponses($skillDescriptions)
-    {
-        if (! $this->selectedHistory) {
-            return;
-        }
-
-        foreach ($skillDescriptions as $skill => $description) {
-            $response = empty(trim($description)) ? '[NO_EXPERIENCE]' : $description;
-
-            MissingSkill::where('generated_document_id', $this->selectedHistory->id)
-                ->where('skill_name', $skill)
-                ->update([
-                    'user_response' => $response,
-                    'addressed' => true,
-                ]);
-        }
-    }
-
-    public function viewMissingSkills($id)
-    {
-        $userId = Auth::id() ?? 'guest';
-
-        $this->selectedHistory = Application::with('missingSkills')
-            ->where('id', $id)
-            ->where('user_id', $userId)
-            ->first();
-
-        if ($this->selectedHistory) {
-            $this->skillDescriptions = [];
-            foreach ($this->selectedHistory->missingSkills as $skill) {
-                $displayResponse = $skill->user_response === '[NO_EXPERIENCE]'
-                    ? ''
-                    : $skill->user_response;
-                $this->skillDescriptions[$skill->skill_name] = $displayResponse;
-            }
-
-            $this->dispatch('show-modal.missing-skills');
-        }
-    }
-
-    public function closeDialog()
-    {
-        $this->showResults = false;
-        $this->selectedHistory = null;
-        $this->dispatch('hide-dialog');
-    }
-
     public function copyToClipboard(string $type): void
     {
         $text = $type === 'resume' ? $this->resumeText : $this->coverLetterText;
         $this->dispatch('copy-to-clipboard', $text);
-    }
-
-    public function viewHistory($id)
-    {
-        $userId = Auth::id() ?? 'guest';
-        $this->selectedHistory = Application::with('missingSkills')
-            ->where('id', $id)
-            ->where('user_id', $userId)
-            ->first();
-
-        if ($this->selectedHistory) {
-            $this->resumeText = $this->selectedHistory->resume_text;
-            $this->coverLetterText = $this->selectedHistory->cover_letter_text;
-            $this->showResults = true;
-            $this->selectedHistoryTitle = "Generated Documents {$this->selectedHistory->created_at->format('M d, Y H:i')}";
-            $this->dispatch('show-modal.history');
-        }
-    }
-
-    public function deleteHistory($id)
-    {
-        $userId = Auth::id() ?? 'guest';
-        Application::where('id', $id)
-            ->where('user_id', $userId)
-            ->delete();
     }
 
 };

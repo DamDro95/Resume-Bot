@@ -259,6 +259,10 @@ main{
 }
 
 @scope(dialog#auth-modal){
+    :scope{
+        width: fit-content;
+    }
+
     section{
         display: grid;
         grid-template-columns: 1fr;

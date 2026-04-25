@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Application extends Model
 {
@@ -11,6 +12,10 @@ class Application extends Model
         'company_name',
         'job_title',
         'job_description',
-        'additional_instructions'
     ];
+
+    public function generations(): HasMany
+    {
+        return $this->hasMany(Generation::class);
+    }
 }

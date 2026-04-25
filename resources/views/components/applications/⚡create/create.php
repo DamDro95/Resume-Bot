@@ -1,10 +1,11 @@
 <?php
+
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\Attributes\Validate;
-use Livewire\Attributes\On;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Application;
+use App\Jobs\GenerateDocuments;
 
 new class extends Component
 {
@@ -29,16 +30,12 @@ new class extends Component
             'company_name' => $this->companyName,
             'job_title' => $this->jobTitle,
             'job_description' => $this->jobDescription,
-            'additional_instructions' => $this->additionalInstructions,
         ]);
+
+        GenerateDocuments::dispatch($application->id, $this->additionalInstructions);
 
         $this->reset();
         $this->dispatch('application-created', id: $application->id );
         $this->dispatch('close')->self();
-    }
-
-    #[On('application-created')]
-    public function startGeneration(string $id){
-        Log::info('start generation for:' . $id);
     }
 };

@@ -11,9 +11,10 @@ use App\Models\User;
 use App\Enums\DocumentType;
 use App\Models\Application;
 use App\Models\MissingSkill;
+use App\Models\Generation;
 use App\Enums\GenerationStatus;
 
-class GenerateDocument implements ShouldQueue
+class GenerateDocuments implements ShouldQueue
 {
     use Queueable;
 
@@ -21,10 +22,8 @@ class GenerateDocument implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct(
-        public string $userId,
-        public bool $attachResume,
-        public bool $attachCoverLetter,
-        public array $payload
+        public int $application_id,
+        public string $additional_instructions,
     ){}
 
     /**
@@ -32,35 +31,40 @@ class GenerateDocument implements ShouldQueue
      */
     public function handle(): void
     {
-        $user = User::findOrFail($this->userId);
+        try{
+            $application = Application::findOrFail($this->application_id);
 
-        $request = Http::asMultipart();
-        $request->timeout(300);
+            $generation = Generation::create([
+                'application_id' => $application->user_id,
+                'additional_instructions' => $this->additional_instructions,
+                'status' => GenerationStatus::Pending->value,
+                'resume_text' => '',
+                'cover_letter_text' => '',
+                'viewed' => false,
+            ]);
 
-        if($this->attachResume){
+            $request = Http::asMultipart();
+            $request->timeout(300);
+
+            $user = User::findOrFail($application->user_id);
+
             $resumeDocument = $user->getDocument(DocumentType::Resume);
             $resume = Storage::disk('user_documents')->get($resumeDocument->getPath());
             $request->attach('resume', $resume, $resumeDocument->filename);
-        }
 
-        if($this->attachCoverLetter){
             $coverLetterDocument = $user->getDocument(DocumentType::CoverLetter);
             $coverLetter = Storage::disk('user_documents')->get($coverLetterDocument->getPath());
             $request->attach('coverLetter', $coverLetter, $coverLetterDocument->filename);
-        }
 
-        $generation = Application::Create([
-            'user_id' => $user->id,
-            'status' => GenerationStatus::Pending->value,
-            'resume_text' => '',
-            'cover_letter_text' => '',
-        ]);
-
-        try {
-            $response = $request->post(config('n8n.generate_url'), $this->payload )->throw();
+            $payload = [
+                'jobDescription' => $application->job_description,
+                'skills'         => 'IIS: While at LANSA I had to maanage some web applications using IIS.',
+            ];
 
             $generation->status = GenerationStatus::Processing;
             $generation->save();
+
+            $response = $request->post(config('n8n.generate_url'), $payload )->throw();
 
             if($response->successful()){
 
@@ -87,8 +91,8 @@ class GenerateDocument implements ShouldQueue
                 Log::error('N8n analyze error: '. $response->body());
             }
         } catch (\Exception $e) {
-            $generation->status = GenerationStatus::Failed;
-            $generation->save();
+            /* $generation->status = GenerationStatus::Failed; */
+            /* $generation->save(); */
             Log::error('N8n analyze exception: '.$e->getMessage());
         }
     }

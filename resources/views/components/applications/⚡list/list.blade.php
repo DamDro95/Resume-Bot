@@ -30,16 +30,22 @@
                     <td>{{ $application->created_at->format('M d, Y H:i') }}</td>
                     <td class="actions">
                         <button
-                            x-on:click="$wire.dispatchTo('applications.update', 'load-application', { 'application': {{ $application }} } )"
-                        >
-                            <label>Update</label>
-                        </button>
-                        <button
                             x-on:click="$wire.dispatchTo('applications.delete', 'show', { 'id': {{ $application->id }} } )"
                         >
                             <label>Delete</label>
                         </button>
 
+                        <button
+                            x-on:click="$wire.dispatchTo('applications.update', 'load-application', { 'application': {{ $application }} } )"
+                        >
+                            <label>Update</label>
+                        </button>
+
+                        <button
+                            x-on:click="$wire.dispatchTo('jobs.list', 'show', { 'application': {{ $application }} } )"
+                        >
+                            <label>Jobs</label>
+                        </button>
                     </td>
                 </tr>
             @endforeach
