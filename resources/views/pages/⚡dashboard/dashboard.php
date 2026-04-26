@@ -3,13 +3,10 @@
 namespace Livewire\Component;
 
 use App\Models\Application;
-use App\Models\MissingSkill;
 use App\Enums\DocumentType;
-use App\Enums\GenerationStatus;
 use App\Models\UserDocument;
 use App\Jobs\GenerateDocument;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
@@ -159,11 +156,4 @@ new class extends Component
 
         $this->isGenerating = true;
     }
-
-    public function copyToClipboard(string $type): void
-    {
-        $text = $type === 'resume' ? $this->resumeText : $this->coverLetterText;
-        $this->dispatch('copy-to-clipboard', $text);
-    }
-
 };

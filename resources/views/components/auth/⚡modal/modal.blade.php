@@ -18,7 +18,7 @@
                     <input type="email" wire:model="email" required>
                 </label>
 
-                <label class="horizontal">
+                <label class="row">
                     <input type="checkbox" wire:model="remember">
                     Remember me
                 </label>

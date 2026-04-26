@@ -34,7 +34,7 @@
             </label>
 
             <label>
-                Additional Instructions
+                Additional Instructions (optional)
                 <textarea
                     wire:model="additionalInstructions"
                     rows="3"

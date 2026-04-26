@@ -3,7 +3,6 @@
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Application;
-use Illuminate\Support\Facades\Log;
 
 new class extends Component
 {

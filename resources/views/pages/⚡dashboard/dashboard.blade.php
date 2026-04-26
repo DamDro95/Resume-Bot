@@ -6,16 +6,16 @@
 
         <h2>Upload Documents (PDF/DOCX)</h2>
 
-        <div class="horizontal">
+        <div class="row">
 
-            <label class="horizontal">
+            <label class="row">
                 <input type="file" wire:model="resume" accept=".pdf">
                 Upload Resume
                 <div class="loader" wire:loading wire:target="resume"></div>
                 <i title="uploaded" wire:show="resumeExists" wire:loading.remove wire:target="resume">✔</i>
             </label>
 
-            <label class="horizontal">
+            <label class="row">
                 <input type="file" wire:model="coverLetter" accept=".pdf">
                 Upload Cover Letter
                 <div class="loader" wire:loading wire:target="coverLetter"></div>

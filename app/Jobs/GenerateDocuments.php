@@ -22,8 +22,8 @@ class GenerateDocuments implements ShouldQueue
      * Create a new job instance.
      */
     public function __construct(
-        public int $application_id,
-        public string $additional_instructions,
+        public int $applicationId,
+        public string $additionalInstructions,
     ){}
 
     /**
@@ -32,11 +32,12 @@ class GenerateDocuments implements ShouldQueue
     public function handle(): void
     {
         try{
-            $application = Application::findOrFail($this->application_id);
+            Log::info('appid:' .$this->applicationId);
+            $application = Application::findOrFail($this->applicationId);
 
             $generation = Generation::create([
-                'application_id' => $application->user_id,
-                'additional_instructions' => $this->additional_instructions,
+                'application_id' => $application->id,
+                'additional_instructions' => $this->additionalInstructions,
                 'status' => GenerationStatus::Pending->value,
                 'resume_text' => '',
                 'cover_letter_text' => '',
